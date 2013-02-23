@@ -65,6 +65,13 @@ class HTMLParser(parser.HTMLParser):
     # body
     def _body_handle_starttag(self, tag, attrs):
         if tag == "ol":
+            for key, value in attrs:
+                print(key, value)
+                if key == "class":
+                    if value == "c0":
+                        self._get_current_state()["indent"] = 0
+                    if value == "c15":
+                        self._get_current_state()["indent"] = self._OLLI_INDENT
             self._state.append({
                 "name": "ol",
                 "indent": self._get_current_indent(),
@@ -98,7 +105,7 @@ class HTMLParser(parser.HTMLParser):
             self._output.write(" " * self._get_current_indent() + "* ")
             self._state.append({
                 "name": "olli",
-                "indent": self._get_current_indent() + self._OLLI_INDENT,
+                "indent": self._get_current_indent(),
             })
             return
 
