@@ -41,9 +41,11 @@ class HTMLParser(parser.HTMLParser):
     def _get_current_indent(self):
         return self._get_current_state()["indent"]
 
+    def _escape(self, data):
+        return re.sub(r"([_])", r"\\\1", data)
+
     def _write_data(self, data):
-        data = re.sub(r"([\\*_{}\[\]()#+-\.!])", r"\1", data)
-        self._output.write(data)
+        self._output.write(self._escape(data))
 
     def handle_starttag(self, tag, attrs):
         getattr(self, "_{}_handle_starttag".format(self._get_current_state_name()), HTMLParser._null_func)(tag, attrs)
@@ -62,11 +64,9 @@ class HTMLParser(parser.HTMLParser):
                 "indent": 0,
             })
 
-    # body
-    def _body_handle_starttag(self, tag, attrs):
+    def _generic_handle_starttag(self, tag, attrs):
         if tag == "ol":
             for key, value in attrs:
-                print(key, value)
                 if key == "class":
                     if value == "c0":
                         self._get_current_state()["indent"] = 0
@@ -87,6 +87,17 @@ class HTMLParser(parser.HTMLParser):
                 "indent": self._get_current_indent()
             })
             return
+
+        if tag == "a":
+            self._state.append({
+                "name": "a",
+                "indent": self._get_current_indent(),
+                "attrs": attrs,
+            })
+            return
+
+    # body
+    _body_handle_starttag = _generic_handle_starttag
 
     _body_handle_endtag = _get_pop_state_endtag("body")
 
@@ -112,14 +123,7 @@ class HTMLParser(parser.HTMLParser):
     _ol_handle_endtag = _get_pop_state_endtag("ol", enter=1)
 
     # olli
-    def _olli_handle_starttag(self, tag, attrs):
-        if tag == "a":
-            self._state.append({
-                "name": "a",
-                "indent": self._get_current_indent(),
-                "attrs": attrs,
-            })
-            return
+    _olli_handle_starttag = _generic_handle_starttag
 
     _olli_handle_data = _write_data
 
@@ -132,7 +136,7 @@ class HTMLParser(parser.HTMLParser):
             if key == "href":
                 href = value
                 break
-        self._output.write("[{}]({})".format(data, href))
+        self._output.write("[{}]({})".format(self._escape(data), href))
 
     _a_handle_endtag = _get_pop_state_endtag("a")
 
