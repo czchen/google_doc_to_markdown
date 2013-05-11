@@ -113,7 +113,7 @@ class HTMLParser(parser.HTMLParser):
     # ol
     def _ol_handle_starttag(self, tag, attrs):
         if tag == "li":
-            self._output.write(" " * self._get_current_indent() + "* ")
+            self._output.write(" " * self._get_current_indent() + "*   ")
             self._state.append({
                 "name": "olli",
                 "indent": self._get_current_indent(),
