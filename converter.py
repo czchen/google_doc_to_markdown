@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 import argparse
 import re
-import sys
 
 from html import parser
+
 
 class HTMLParser(parser.HTMLParser):
     _OLLI_INDENT = 3
     _CODE_INDENT = 4
 
     _DEFAULT_STATE = {
-            "name": "start",
-            "indent": 0,
+        "name": "start",
+        "indent": 0,
     }
 
     def __init__(self, output, *args, **kwargs):
@@ -48,13 +48,16 @@ class HTMLParser(parser.HTMLParser):
         self._output.write(self._escape(data))
 
     def handle_starttag(self, tag, attrs):
-        getattr(self, "_{}_handle_starttag".format(self._get_current_state_name()), HTMLParser._null_func)(tag, attrs)
+        getattr(self, "_{}_handle_starttag".format(
+            self._get_current_state_name()), HTMLParser._null_func)(tag, attrs)
 
     def handle_endtag(self, tag):
-        getattr(self, "_{}_handle_endtag".format(self._get_current_state_name()), HTMLParser._null_func)(tag)
+        getattr(self, "_{}_handle_endtag".format(
+            self._get_current_state_name()), HTMLParser._null_func)(tag)
 
     def handle_data(self, data):
-        getattr(self, "_{}_handle_data".format(self._get_current_state_name()), HTMLParser._null_func)(data)
+        getattr(self, "_{}_handle_data".format(
+            self._get_current_state_name()), HTMLParser._null_func)(data)
 
     # start
     def _start_handle_starttag(self, tag, attrs):
@@ -146,7 +149,7 @@ def parse_config():
     parser.add_argument("src", nargs=1, type=str)
     parser.add_argument("dst", nargs="?", type=str)
     args = parser.parse_args()
-    
+
     config = {}
 
     config["src"] = args.src[0]
@@ -161,6 +164,7 @@ def parse_config():
         config["dst"] = args.dst[0]
 
     return config
+
 
 def main():
     config = parse_config()
